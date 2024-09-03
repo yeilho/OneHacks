@@ -1,15 +1,17 @@
-import { useState } from 'react'
-import './App.css'
-import { Button } from '@/components/ui/button'
+import React from "react"
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import RepTracker from './pages/RepTracker.jsx'
+import WorkoutCreator from './pages/WorkoutCreator.jsx'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
     <>
-      <Button>Please work!</Button>
+      <BrowserRouter>
+        <Routes>
+          <Route index element={<RepTracker />} />
+          <Route path="/workout-creator" element={<WorkoutCreator />} />
+        </Routes>
+      </BrowserRouter>
     </>
   )
 }
-
-export default App
