@@ -34,10 +34,30 @@ export default function WorkoutCreator() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Here you would typically send the data to a backend API
     // For this example, we'll just set some placeholder recommendations
+
+    
+    const formData = new FormData();
+    ['breakfast', 'lunch', 'dinner'].map((meal) => (
+      mealImages[meal] && formData.append(meal, mealImages[meal])
+    ));
+    formData.append('age', age);
+    formData.append('sex', sex);
+    formData.append('weight', weight);
+    formData.append('height', height);
+    formData.append('freeTime', freeTime);
+    
+
+    try {
+        const response = await axios.post('http://localhost:5000/predict', formData);
+        setResponse(response.data.response);
+    } catch (error) {
+        console.error(error);
+    }
+
     setDietRecommendations(
       "Based on your input, we recommend a balanced diet rich in protein and vegetables. Aim for 2000 calories per day."
     );
@@ -67,20 +87,19 @@ export default function WorkoutCreator() {
                   <SelectContent>
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="weight">Weight (kg)</Label>
+                <Label htmlFor="weight">Weight (pounds)</Label>
                 <Input id="weight" value={weight} onChange={(e) => setWeight(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="height">Height (cm)</Label>
+                <Label htmlFor="height">Height (inches)</Label>
                 <Input id="height" value={height} onChange={(e) => setHeight(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="freeTime">Free time (hours/week)</Label>
+                <Label htmlFor="freeTime">Free time today (mins)</Label>
                 <Input id="freeTime" value={freeTime} onChange={(e) => setFreeTime(e.target.value)} />
               </div>
             </div>
