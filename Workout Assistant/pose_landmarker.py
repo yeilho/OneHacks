@@ -6,6 +6,9 @@ from mediapipe.tasks.python import vision
 import numpy as np
 import cv2 as cv
 import math
+from flask import Flask, Response
+
+app = Flask(__name__)
 
 class PoseLandmarker:
 
@@ -52,6 +55,7 @@ class PoseLandmarker:
         return annotations
     
     # RETURNS CURL EFFICIENCY %
+    @app.route('/getCurl')
     def check_curl(self):
 
         min_angle = 30
@@ -90,6 +94,7 @@ class PoseLandmarker:
         return sum
     
     # RETURNS SQUAT EFFICIENCY %
+    @app.route('/getSquat')
     def check_squat(self):
 
         min_angle = 70
@@ -128,6 +133,7 @@ class PoseLandmarker:
         return sum
 
     # RETURNS PULLUP EFFICIENCY %
+    @app.route('/getPullup')
     def check_pullup(self):
 
         min_angle = 15
@@ -185,23 +191,23 @@ class PoseLandmarker:
     def get_distance(self, p1, p2):
         return math.sqrt((p2[1] - p1[1])**2 + (p2[2] - p1[2])**2)
 
-
-def main():
+@app.route('/getFrame')
+def load_frames():
 
     landmarker = PoseLandmarker()
 
     capture = cv.VideoCapture(0)
-    while True:
-        ret, frame = capture.read()
-        frame = cv.resize(frame, (int(1500), int(1080)))
-        
-        cv.imshow('frame', landmarker.draw_annotations(frame))
+    ret, frame = capture.read()
 
-        if cv.waitKey(1) & 0xFF == ord('q'): 
-            break
+    if not ret: 
+        return None
 
-    capture.release()
-    cv.destroyAllWindows()
+    frame = landmarker.draw_annotations(frame)
+
+    ret, buffer = cv.imencode('.jpg', frame)
+    frame = buffer.tobytes()
+
+    return Response(frame, mimetype='image/jpeg')
 
 if __name__ == "__main__":
-    main()
+    app.run(debug=True)
