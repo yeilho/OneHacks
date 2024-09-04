@@ -48,7 +48,6 @@ class PoseLandmarker:
         image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
 
         detection_result = self.detector.detect(image)
-
         annotations = self.get_landmark_image_data(image.numpy_view(), detection_result)
         return annotations
     
@@ -90,6 +89,44 @@ class PoseLandmarker:
         
         return sum
     
+    # RETURNS CURL EFFICIENCY %
+    def check_squat(self):
+
+        min_angle = 70
+        max_angle = 180
+
+        left_leg_percent = -1
+        right_leg_percent = -1
+
+        if (len(self.lm_list) >= 16):
+            left_leg = [self.lm_list[23],
+                        self.lm_list[25],
+                        self.lm_list[27]]
+            left_leg_percent = self.clamp_value(self.scale_value(self.get_angle_points_deg(left_leg[0], left_leg[1], left_leg[2]),
+                                                max_angle,
+                                                min_angle,
+                                                0,
+                                                100), 0, 100)
+
+        if (len(self.lm_list) >= 17):
+            right_leg = [self.lm_list[24],
+                        self.lm_list[26],
+                        self.lm_list[28]]
+            right_leg_percent = self.clamp_value(self.scale_value(self.get_angle_points_deg(right_leg[0], right_leg[1], right_leg[2]),
+                                                max_angle,
+                                                min_angle,
+                                                0,
+                                                100), 0, 100)
+        sum = 0
+
+        if left_leg_percent >= 0:
+            sum += left_leg_percent
+        if right_leg_percent >= 0:
+            sum += right_leg_percent
+            return sum / 2
+        
+        return sum
+    
     def clamp_value(self, value, min, max):
         if (value > max):
             value = max
@@ -118,6 +155,7 @@ def main():
     capture = cv.VideoCapture(0)
     while True:
         ret, frame = capture.read()
+        frame = cv.resize(frame, (int(1500), int(1080)))
         
         cv.imshow('frame', landmarker.draw_annotations(frame))
 
