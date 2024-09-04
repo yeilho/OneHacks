@@ -89,7 +89,7 @@ class PoseLandmarker:
         
         return sum
     
-    # RETURNS CURL EFFICIENCY %
+    # RETURNS SQUAT EFFICIENCY %
     def check_squat(self):
 
         min_angle = 70
@@ -123,6 +123,44 @@ class PoseLandmarker:
             sum += left_leg_percent
         if right_leg_percent >= 0:
             sum += right_leg_percent
+            return sum / 2
+        
+        return sum
+
+    # RETURNS PULLUP EFFICIENCY %
+    def check_pullup(self):
+
+        min_angle = 15
+        max_angle = 180
+
+        left_arm_percent = -1
+        right_arm_percent = -1
+
+        if (len(self.lm_list) >= 16):
+            left_arm = [self.lm_list[11],
+                        self.lm_list[13],
+                        self.lm_list[15]]
+            left_arm_percent = self.clamp_value(self.scale_value(self.get_angle_points_deg(left_arm[0], left_arm[1], left_arm[2]),
+                                                max_angle,
+                                                min_angle,
+                                                0,
+                                                100), 0, 100)
+
+        if (len(self.lm_list) >= 17):
+            right_arm = [self.lm_list[12],
+                        self.lm_list[14],
+                        self.lm_list[16]]
+            right_arm_percent = self.clamp_value(self.scale_value(self.get_angle_points_deg(right_arm[0], right_arm[1], right_arm[2]),
+                                                max_angle,
+                                                min_angle,
+                                                0,
+                                                100), 0, 100)
+        sum = 0
+
+        if left_arm_percent >= 0:
+            sum += left_arm_percent
+        if right_arm_percent >= 0:
+            sum += right_arm_percent
             return sum / 2
         
         return sum
