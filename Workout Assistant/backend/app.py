@@ -20,18 +20,18 @@ app = Flask(__name__)
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    # Get data from the React app
-    breakfast = request.files['breakfast']
-    lunch = request.files['lunch']
-    dinner = request.files['dinner']
-    age = request.form.get('age')
-    sex = request.form.get('sex')
-    goal = request.form.get('goal')
-    weight = request.form.get('weight')
-    height = request.form.get('height')
-    length = request.form.get('length')
+  breakfast = request.files.get('breakfast')
+  lunch = request.files.get('lunch')
+  dinner = request.files.get('dinner')
 
-    print(age + " " + sex + " " + goal)
+  age = request.form.get('age')
+  sex = request.form.get('sex')
+  goal = request.form.get('goal')
+  weight = request.form.get('weight', '')
+  height = request.form.get('height', '')
+  length = request.form.get('length', '')
+
+  print(f"{age} {sex} {goal}")
 
     # print_multimodal_prompt([breakfast,lunch,dinner])
 
