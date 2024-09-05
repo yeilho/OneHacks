@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import NavBar from "../components/nav-bar.jsx"
+import axios from 'axios';
 
 export default function WorkoutCreator() {
   const [age, setAge] = useState('');
@@ -41,29 +42,32 @@ export default function WorkoutCreator() {
 
     
     const formData = new FormData();
-    ['breakfast', 'lunch', 'dinner'].map((meal) => (
-      mealImages[meal] && formData.append(meal, mealImages[meal])
-    ));
+
+    ['breakfast', 'lunch', 'dinner'].forEach((meal) => {
+      if (mealImages[meal]) {
+        formData.append(meal, mealImages[meal]);
+      }
+    });
     formData.append('age', age);
     formData.append('sex', sex);
     formData.append('weight', weight);
     formData.append('height', height);
     formData.append('freeTime', freeTime);
-    
+    formData.append('goals', JSON.stringify(goals));
 
-    try {
-        const response = await axios.post('http://localhost:5000/predict', formData);
-        setResponse(response.data.response);
+    fetch("/predict", {
+    const response = await axios.post('http://localhost:5000/predict', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    // Assuming the response contains diet and workout recommendations
+    // setDietRecommendations(response.json);
+    // setWorkoutRecommendations(response.json);
     } catch (error) {
-        console.error(error);
+      console.error("There was an error submitting the form:", error);
     }
 
-    setDietRecommendations(
-      "Based on your input, we recommend a balanced diet rich in protein and vegetables. Aim for 2000 calories per day."
-    );
-    setWorkoutRecommendations(
-      "We suggest a mix of cardio and strength training. Start with 30 minutes of jogging 3 times a week, and 45 minutes of weight training 2 times a week."
-    );
   };
 
   return (
