@@ -191,23 +191,29 @@ class PoseLandmarker:
     def get_distance(self, p1, p2):
         return math.sqrt((p2[1] - p1[1])**2 + (p2[2] - p1[2])**2)
 
-@app.route('/getFrame')
+
 def load_frames():
 
     landmarker = PoseLandmarker()
 
     capture = cv.VideoCapture(0)
-    ret, frame = capture.read()
+    while True:
+        ret, frame = capture.read()
 
-    if not ret: 
-        return None
+        if not ret: 
+            return None
 
-    frame = landmarker.draw_annotations(frame)
+        frame = landmarker.draw_annotations(frame)
 
-    ret, buffer = cv.imencode('.jpg', frame)
-    frame = buffer.tobytes()
+        ret, buffer = cv.imencode('.jpg', frame)
+        frame = buffer.tobytes()
 
-    return Response(frame, mimetype='image/jpeg')
+        yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+@app.route('/getFeed')
+def get_video():
+    return Response(load_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == "__main__":
     app.run(debug=True)
